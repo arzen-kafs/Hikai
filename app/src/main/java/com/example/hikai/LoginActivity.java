@@ -27,6 +27,7 @@ import com.example.hikai.config.SharedPrefManager;
 import com.example.hikai.libs.URLs;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity  {
+    Boolean success;
     TextInputLayout lPass,lUserName;
     EditText email, pwd;
     Button login,registration,forgotPassword;
@@ -111,11 +113,11 @@ public class LoginActivity extends AppCompatActivity  {
         final String username = email.getText().toString();
         final String password = pwd.getText().toString();
 
-        RequestQueue requestQueue= Volley.newRequestQueue(this);
 
 
 
-///if everything is fine
+
+            ///if everything is fine
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URLs.URL_LOGIN,
                 new Response.Listener<String>() {
                     @Override
@@ -128,19 +130,31 @@ public class LoginActivity extends AppCompatActivity  {
                             Log.d("ServerResponse",obj.toString());
 
                             //if no error in response
-                            if (!obj.getBoolean("error")) {
+                           // if (!obj.getBoolean("error")) {
                                 Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
 
-                                //getting the user from the response
-                                JSONObject userJson = obj.getJSONObject("user");
+
+                                //getting data array
+                            JSONArray dataArray = obj.getJSONArray("data");
+
+                            Toast.makeText(getApplicationContext(), dataArray.getJSONObject(0).getString("participantID"), Toast.LENGTH_LONG).show();
+
+                            //getting the user from the response
+                           // JSONObject userJson = obj.getJSONObject("data");
 
                                 //creating a new user object(in bracket pass the column name)
                                User user = new User(
-                                        userJson.getInt("keyid"),
-                                        userJson.getString("keyUsername"),
-                                        userJson.getString("password"),
-                                        userJson.getString("gender")
+                                        dataArray.getJSONObject(0).getInt("id"),
+                                       dataArray.getJSONObject(0).getString("firstName")+" "+dataArray.getJSONObject(0).getString("lastName"),
+                                       dataArray.getJSONObject(0).getString("class"),
+                                       dataArray.getJSONObject(0).getString("phone")
+                                        //userJson.getInt("id"),
+                                        //userJson.getString("firstName"),
+                                        //Log.d("Lo","Sucess")
+//                                        userJson.getString("password"),
+//                                        userJson.getString("gender")
                                 );
+                               Log.d("ouruser",user.getName().toString());
 
                                 //storing the user in shared preferences
                                 SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
@@ -148,10 +162,10 @@ public class LoginActivity extends AppCompatActivity  {
                                 //starting the profile activity
                                 finish();
                                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                            }
-                            else {
-                                Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
-                            }
+                            //}
+                            //else {
+                                //Toast.makeText(getApplicationContext(), obj.getString("message"), Toast.LENGTH_SHORT).show();
+                           // }
                         }
                         catch (JSONException e) {
                             e.printStackTrace();
@@ -173,18 +187,18 @@ public class LoginActivity extends AppCompatActivity  {
             params.put("password", password);
             return params;
         }
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> params = new HashMap<String, String>();
-                String creds = String.format("%s:%s","USERNAME","PASSWORD");
-                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
-                params.put("Authorization", auth);
-                return params;
-            }
-        };
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                HashMap<String, String> params = new HashMap<String, String>();
+//                String creds = String.format("%s:%s","USERNAME","PASSWORD");
+//                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
+//                params.put("Authorization", auth);
+//                return params;
+//            }
+       };
 
         VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
-       requestQueue.add(stringRequest);
+
     }
 }
 

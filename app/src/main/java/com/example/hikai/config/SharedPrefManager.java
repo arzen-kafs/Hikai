@@ -53,7 +53,7 @@ public class SharedPrefManager {
         SharedPreferences sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         return new User(
                 sharedPreferences.getInt(ID, -1),
-                sharedPreferences.getString(USERNAME, "Dependra"),
+                sharedPreferences.getString(USERNAME, null),
                 sharedPreferences.getString(USER_CLASS,null),
                 sharedPreferences.getString(PASSWORD,null)
         );
